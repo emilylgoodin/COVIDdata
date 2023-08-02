@@ -1,0 +1,104 @@
+#looking at condensed table 
+
+SELECT location, date, total_cases, new_cases, total_deaths, population
+FROM `portfolioproject-393315.OWID.CovidDeaths`
+WHERE continent is not null
+order by 1,2
+
+#looking at total_cases vs total_death to show the liklihood of dying if you contract covid in the US
+
+SELECT location, date, total_cases, total_deaths,(total_deaths/total_cases)*100 as death_percentage
+FROM `portfolioproject-393315.OWID.CovidDeaths`
+WHERE location = 'United States'
+order by 1,2
+
+#looking at total cases vs population to show what percentage of the population living in the US gets covid
+
+SELECT location, date, total_cases, population,(total_cases/population)*100 as PercentPopulationInfected
+FROM `portfolioproject-393315.OWID.CovidDeaths`
+WHERE location = 'United States'
+order by 1,2
+
+#Looking at countries with highest infection rates compared to population
+
+SELECT location, population, MAX(total_cases) as HighestInfectionCount, MAX((total_cases/population))*100 as PercentPopulationInfected
+FROM `portfolioproject-393315.OWID.CovidDeaths`
+GROUP BY location, population
+order by PercentPopulationInfected desc
+
+#Showing countries with highest death count compared to population
+
+SELECT location, MAX(cast(total_deaths as int)) as TotalDeathCount
+FROM `portfolioproject-393315.OWID.CovidDeaths`
+WHERE continent is not null
+GROUP BY location
+order by TotalDeathCount desc
+
+#showing continents with highest death counts
+
+SELECT continent, MAX(cast(total_deaths as int)) as TotalDeathCount
+FROM `portfolioproject-393315.OWID.CovidDeaths`
+WHERE continent is not null
+GROUP BY continent
+order by TotalDeathCount desc
+
+#Global Numbers
+
+SELECT date, SUM(new_cases) as total_cases, SUM(cast(new_deaths as int)) as total_deaths, SUM(cast(new_deaths as int))/SUM(new_cases)*100 as DeathPercentage
+FROM `portfolioproject-393315.OWID.CovidDeaths`
+WHERE continent is not null
+GROUP by date
+order by 1,2
+
+#Looking at total population vs vaccinations
+
+SELECT dea.continent, dea.location, dea.date, dea.population,vac.new_vaccinations, SUM(cast(vac.new_vaccinations as bigint)) OVER (Partition by dea.location order by dea.location, dea.date) as rollingpeoplevaccinated
+FROM `portfolioproject-393315.OWID.CovidDeaths` dea
+JOIN `portfolioproject-393315.OWID.CovidVaccines` vac
+  on dea.location = vac.location
+  and dea.date = vac.date
+WHERE dea.continent is not null
+order by 2,3
+
+#use CTE
+
+WITH PopvsVac AS (
+  SELECT dea.continent, dea.location, dea.date, dea.population,vac.new_vaccinations, SUM(cast(vac.new_vaccinations as int)) OVER     (Partition by dea.location order by dea.location, dea.date) as rollingpeoplevaccinated
+  FROM `portfolioproject-393315.OWID.CovidDeaths` dea
+  JOIN `portfolioproject-393315.OWID.CovidVaccines` vac
+    on dea.location = vac.location
+    and dea.date = vac.date
+  WHERE dea.continent is not null)
+SELECT *, (rollingpeoplevaccinated/population)*100
+FROM PopvsVac
+
+#Temp table
+
+CREATE TEMPORARY TABLE PercentPopulationVaccinated
+(
+  continent nvarchar(225),
+  location nvarchar(225),
+  date datetime,
+  population numeric,
+  new_vaccinations numeric,
+  rollingpeoplevaccinated numeric
+)
+INSERT INTO PercentPopulationVaccinated
+SELECT dea.continent, dea.location, dea.date, dea.population,vac.new_vaccinations, SUM(cast(vac.new_vaccinations as int)) OVER     (Partition by dea.location order by dea.location, dea.date) as rollingpeoplevaccinated
+FROM `portfolioproject-393315.OWID.CovidDeaths` dea
+JOIN `portfolioproject-393315.OWID.CovidVaccines` vac
+  on dea.location = vac.location
+  and dea.date = vac.date
+WHERE dea.continent is not null
+SELECT *, (rollingpeoplevaccinated/population)*100
+FROM PercentPopulationVaccinated
+
+#Creating view to store for later visualizations
+
+CREATE VIEW PercentPopulationVaccinated as
+SELECT dea.continent, dea.location, dea.date, dea.population,vac.new_vaccinations, SUM(cast(vac.new_vaccinations as int)) OVER     (Partition by dea.location order by dea.location, dea.date) as rollingpeoplevaccinated
+FROM `portfolioproject-393315.OWID.CovidDeaths` dea
+JOIN `portfolioproject-393315.OWID.CovidVaccines` vac
+  on dea.location = vac.location
+  and dea.date = vac.date
+WHERE dea.continent is not null
