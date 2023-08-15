@@ -1,0 +1,175 @@
+# 1. Relationship between purchase frequency annd personalized recommendation frequency
+
+SELECT 
+  Purchase_Frequency,
+  Personalized_Recommendation_Frequency
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE 
+  Personalized_Recommendation_Frequency = 'Yes' OR Personalized_Recommendation_Frequency = 'Sometimes'
+
+# 351/602 (58%) of all customers have made a purchase based on a personalized product recommendation from Amazon
+
+SELECT 
+  Purchase_Frequency,
+  Personalized_Recommendation_Frequency
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE 
+  Purchase_Frequency = 'Multiple times a week'
+
+# 56 customers order multiple times a week
+
+SELECT 
+  Purchase_Frequency,
+  Personalized_Recommendation_Frequency
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE 
+  (Purchase_Frequency = 'Multiple times a week') AND
+  (Personalized_Recommendation_Frequency = 'Yes' OR Personalized_Recommendation_Frequency = 'Sometimes')
+
+# 39/56 (70%) customers that order multiple times a week have made a purchase based on a personalized product recommendation from Amazon
+
+SELECT 
+  Purchase_Frequency,
+  Personalized_Recommendation_Frequency
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE 
+  (Purchase_Frequency = 'Less than once a month')
+
+# 124 customers that order less than once a month
+
+SELECT 
+  Purchase_Frequency,
+  Personalized_Recommendation_Frequency
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE 
+  (Purchase_Frequency = 'Less than once a month') AND
+  (Personalized_Recommendation_Frequency = 'Yes' OR Personalized_Recommendation_Frequency = 'Sometimes')
+
+# 53/124 (43%) customers that order less than once a month have made a purchase based on a personalized product recommendation from Amazon
+
+# Summary: The more frequently a customer orders, the more likely they are to have made a purchase based on a personalized product recommendation from Amazon
+
+# 2. What is the relationship between browsing frequency and purchasing frequency
+
+SELECT 
+  Purchase_Frequency,
+  Browsing_Frequency,
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+order by 
+  Purchase_Frequency
+
+SELECT 
+  Purchase_Frequency,
+  Browsing_Frequency,
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE
+  Purchase_Frequency = 'Less than once a month' AND
+  Browsing_Frequency = 'Rarely'
+
+# 50/124 (40%) of customers who order less than once a month rarely browse
+
+SELECT 
+  Purchase_Frequency,
+  Browsing_Frequency,
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE
+  Purchase_Frequency = 'Less than once a month' AND
+  Browsing_Frequency = 'Few times a week'
+
+# 27/124 (21%) of customers who order less than once a month browse a few times of week
+
+SELECT 
+  Purchase_Frequency,
+  Browsing_Frequency,
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE
+  Purchase_Frequency = 'Multiple times a week' AND
+  Browsing_Frequency = 'Rarely'
+
+# 2/56 (3%) customers who order multiple times a week rarely browse
+
+SELECT 
+  Purchase_Frequency,
+  Browsing_Frequency,
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE
+  Purchase_Frequency = 'Multiple times a week' AND
+  Browsing_Frequency = 'Few times a week'
+
+# 29/56 (52%) customers who order multiple times a week browse a few times a week
+
+
+# 3. Reviews and shopping satisfaction
+SELECT 
+  Shopping_Satisfaction
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE
+  Shopping_Satisfaction =1
+
+# 115/602 customers rate their satisfaction as a 1 (1 is the best, 5 is the worst)
+
+SELECT 
+  Shopping_Satisfaction
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE
+  Shopping_Satisfaction =5
+
+# 17/602 customers rate their satisfaction as a 5
+
+SELECT 
+  Review_Helpfulness,
+  Shopping_Satisfaction
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE 
+  Review_Helpfulness = 'No' AND
+  Shopping_Satisfaction <=3
+
+# 115/138 (83%) of customers that state reviews are not helpful rate their shopping satisfaction as 3 or below
+
+SELECT 
+  Review_Helpfulness,
+  Shopping_Satisfaction
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE 
+  Review_Helpfulness = 'Yes' AND
+  Shopping_Satisfaction <=3
+
+# 212/237 (89%) of customers that state reviews are helpful rate their shopping satisfaction as 3 or below
+
+SELECT 
+  Customer_Reviews_Importance,
+  Shopping_Satisfaction
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE 
+  (Customer_Reviews_Importance =1 OR Customer_Reviews_Importance =2) 
+  AND
+  Shopping_Satisfaction <=3
+
+# 269/284 (95%) of customers who rank reviews as 1 or 2 in terms of importance rate their shopping satisfaction as 3 or below
+
+SELECT 
+  Customer_Reviews_Importance,
+  Shopping_Satisfaction
+FROM 
+  `portfolioproject-393315.Amazon_Consumer_Behavior_Dataset.Amazon_Survey`
+WHERE 
+  (Customer_Reviews_Importance =4 OR Customer_Reviews_Importance =5) 
+  AND
+  Shopping_Satisfaction <=3
+
+# 62/102 (61%) of customers who rank reviews as 4 or 5 in terms of importance rate their shopping satisfaction as 3 or below
